@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../theme/app_colors.dart';
+import '../../theme/app_shadows.dart';
 import '../../theme/app_spacing.dart';
 
 /// Base card container: white surface, hairline border, rounded corners,
@@ -42,15 +43,7 @@ class _InfoCardState extends State<InfoCard> {
         color: cardColor,
         borderRadius: BorderRadius.circular(AppSpacing.radiusLg),
         border: Border.all(color: borderColor),
-        boxShadow: _hovering && widget.enableHover
-            ? [
-                BoxShadow(
-                  color: Colors.black.withValues(alpha: 0.06),
-                  blurRadius: 16,
-                  offset: const Offset(0, 6),
-                ),
-              ]
-            : null,
+        boxShadow: _hovering && widget.enableHover ? AppShadows.resolveMedium(isDark) : null,
       ),
       child: widget.child,
     );

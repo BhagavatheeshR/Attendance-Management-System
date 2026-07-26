@@ -1,189 +1,38 @@
 import '../models/department.dart';
+import 'department_seeds.dart';
+import 'faculty.dart';
+import 'students.dart';
+import 'subjects.dart';
 
-/// Mock department directory. Numbers are internally consistent with
-/// [mockStudents] / [mockFaculty] counts used across the dashboards.
-final List<Department> mockDepartments = [
-  const Department(
-    id: 'dept-cse',
-    name: 'Computer Science',
-    code: 'CSE',
-    headOfDepartment: 'Dr. Emily Carter',
-    studentCount: 684,
-    facultyCount: 42,
-    subjectCount: 31,
-    averageAttendance: 94.2,
-  ),
-  const Department(
-    id: 'dept-ece',
-    name: 'Electronics & Communication',
-    code: 'ECE',
-    headOfDepartment: 'Dr. Raghav Iyer',
-    studentCount: 512,
-    facultyCount: 36,
-    subjectCount: 27,
-    averageAttendance: 91.8,
-  ),
-  const Department(
-    id: 'dept-mech',
-    name: 'Mechanical Engineering',
-    code: 'MECH',
-    headOfDepartment: 'Dr. Priya Menon',
-    studentCount: 470,
-    facultyCount: 33,
-    subjectCount: 24,
-    averageAttendance: 89.6,
-  ),
-  const Department(
-    id: 'dept-civil',
-    name: 'Civil Engineering',
-    code: 'CIVIL',
-    headOfDepartment: 'Dr. Thomas Reyes',
-    studentCount: 398,
-    facultyCount: 28,
-    subjectCount: 22,
-    averageAttendance: 90.4,
-  ),
-  const Department(
-    id: 'dept-eee',
-    name: 'Electrical Engineering',
-    code: 'EEE',
-    headOfDepartment: 'Dr. Naomi Clarke',
-    studentCount: 356,
-    facultyCount: 24,
-    subjectCount: 21,
-    averageAttendance: 92.1,
-  ),
-  const Department(
-    id: 'dept-it',
-    name: 'Information Technology',
-    code: 'IT',
-    headOfDepartment: 'Dr. Marcus Webb',
-    studentCount: 445,
-    facultyCount: 30,
-    subjectCount: 26,
-    averageAttendance: 95.0,
-  ),
-  const Department(
-    id: 'dept-biotech',
-    name: 'Biotechnology',
-    code: 'BT',
-    headOfDepartment: 'Dr. Sofia Alvarez',
-    studentCount: 268,
-    facultyCount: 19,
-    subjectCount: 18,
-    averageAttendance: 88.9,
-  ),
-  const Department(
-    id: 'dept-chem',
-    name: 'Chemical Engineering',
-    code: 'CHEM',
-    headOfDepartment: 'Dr. Daniel Osei',
-    studentCount: 241,
-    facultyCount: 17,
-    subjectCount: 17,
-    averageAttendance: 87.5,
-  ),
-  const Department(
-    id: 'dept-arch',
-    name: 'Architecture',
-    code: 'ARCH',
-    headOfDepartment: 'Dr. Isabelle Laurent',
-    studentCount: 198,
-    facultyCount: 14,
-    subjectCount: 15,
-    averageAttendance: 93.3,
-  ),
-  const Department(
-    id: 'dept-mgmt',
-    name: 'Business Management',
-    code: 'MBA',
-    headOfDepartment: 'Dr. Kevin Zhao',
-    studentCount: 372,
-    facultyCount: 26,
-    subjectCount: 20,
-    averageAttendance: 90.9,
-  ),
-  const Department(
-    id: 'dept-math',
-    name: 'Mathematics',
-    code: 'MATH',
-    headOfDepartment: 'Dr. Hannah Fischer',
-    studentCount: 156,
-    facultyCount: 12,
-    subjectCount: 14,
-    averageAttendance: 96.1,
-  ),
-  const Department(
-    id: 'dept-phys',
-    name: 'Physics',
-    code: 'PHY',
-    headOfDepartment: 'Dr. Adrian Kowalski',
-    studentCount: 149,
-    facultyCount: 11,
-    subjectCount: 13,
-    averageAttendance: 92.7,
-  ),
-  const Department(
-    id: 'dept-eng',
-    name: 'English & Humanities',
-    code: 'HUM',
-    headOfDepartment: 'Dr. Grace Whitfield',
-    studentCount: 178,
-    facultyCount: 13,
-    subjectCount: 12,
-    averageAttendance: 94.8,
-  ),
-  const Department(
-    id: 'dept-des',
-    name: 'Design',
-    code: 'DES',
-    headOfDepartment: 'Dr. Leo Fontaine',
-    studentCount: 203,
-    facultyCount: 15,
-    subjectCount: 16,
-    averageAttendance: 91.2,
-  ),
-  const Department(
-    id: 'dept-pharm',
-    name: 'Pharmacy',
-    code: 'PHARM',
-    headOfDepartment: 'Dr. Amara Nwosu',
-    studentCount: 267,
-    facultyCount: 18,
-    subjectCount: 19,
-    averageAttendance: 93.9,
-  ),
-  const Department(
-    id: 'dept-agri',
-    name: 'Agricultural Sciences',
-    code: 'AGRI',
-    headOfDepartment: 'Dr. Robert Hale',
-    studentCount: 214,
-    facultyCount: 16,
-    subjectCount: 17,
-    averageAttendance: 88.2,
-  ),
-  const Department(
-    id: 'dept-law',
-    name: 'Law',
-    code: 'LAW',
-    headOfDepartment: 'Dr. Victoria Simmons',
-    studentCount: 189,
-    facultyCount: 14,
-    subjectCount: 15,
-    averageAttendance: 95.4,
-  ),
-  const Department(
-    id: 'dept-med',
-    name: 'Allied Health Sciences',
-    code: 'AHS',
-    headOfDepartment: 'Dr. Samuel Okafor',
-    studentCount: 246,
-    facultyCount: 19,
-    subjectCount: 18,
-    averageAttendance: 92.0,
-  ),
-];
+/// Builds the final department directory with counts computed directly
+/// from the generated student/faculty/subject datasets, so the numbers
+/// shown here always agree with what the list/detail screens actually
+/// display — no hand-typed totals that can drift out of sync.
+List<Department> _buildDepartments() {
+  return departmentSeeds.map((seed) {
+    final deptStudents = studentsByDepartment(seed.id);
+    final deptFaculty = facultyByDepartment(seed.id);
+    final deptSubjects = subjectsByDepartment(seed.id);
+    final avgAttendance = deptStudents.isEmpty
+        ? 0.0
+        : deptStudents.map((s) => s.attendancePercent).reduce((a, b) => a + b) / deptStudents.length;
+
+    return Department(
+      id: seed.id,
+      name: seed.name,
+      code: seed.code,
+      headOfDepartment: seed.headOfDepartment,
+      studentCount: deptStudents.length,
+      facultyCount: deptFaculty.length,
+      subjectCount: deptSubjects.length,
+      averageAttendance: double.parse(avgAttendance.toStringAsFixed(1)),
+    );
+  }).toList();
+}
+
+/// The full department directory — exactly 12 records, with
+/// student/faculty/subject counts computed from the real generated data.
+final List<Department> mockDepartments = _buildDepartments();
 
 Department departmentById(String id) =>
     mockDepartments.firstWhere((d) => d.id == id, orElse: () => mockDepartments.first);

@@ -18,16 +18,12 @@ class FacultyListScreen extends StatefulWidget {
 }
 
 class _FacultyListScreenState extends State<FacultyListScreen> {
-  String _query = '';
   String? _departmentFilter;
 
   List<Faculty> get _filtered {
     return mockFaculty.where((f) {
-      final matchesQuery = _query.isEmpty ||
-          f.name.toLowerCase().contains(_query.toLowerCase()) ||
-          f.employeeId.toLowerCase().contains(_query.toLowerCase());
       final matchesDept = _departmentFilter == null || f.departmentId == _departmentFilter;
-      return matchesQuery && matchesDept;
+      return matchesDept;
     }).toList();
   }
 
@@ -64,86 +60,110 @@ class _FacultyListScreenState extends State<FacultyListScreen> {
           ),
         ),
         child: SingleChildScrollView(
-        padding: Responsive.pagePadding(context),
-        child: Responsive.centered(
-          context: context,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              SectionHeader(title: 'Faculty', subtitle: '${results.length} of ${mockFaculty.length} shown'),
-              AppSearchBar(hint: 'Search by name or employee ID…', onChanged: (v) => setState(() => _query = v)),
-              const SizedBox(height: AppSpacing.md),
-              SizedBox(
-                height: 36,
-                child: ListView(
-                  scrollDirection: Axis.horizontal,
-                  children: [
-                    AppFilterChip(
+          padding: Responsive.pagePadding(context),
+          child: Responsive.centered(
+            context: context,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                SectionHeader(title: 'Faculty', subtitle: '${results.length} of ${mockFaculty.length} shown'),
+                const SizedBox(height: AppSpacing.md),
+                FilterBar(
+                  searchHint: 'Search by name or employee ID…',
+                  filters: [
+                    FilterBarOption(
                       label: 'All Departments',
                       selected: _departmentFilter == null,
-                      onSelected: (_) => setState(() => _departmentFilter = null),
+                      onSelected: () => setState(() => _departmentFilter = null),
                     ),
-                    const SizedBox(width: AppSpacing.sm),
-                    for (final dept in mockDepartments) ...[
-                      AppFilterChip(
+                    for (final dept in mockDepartments)
+                      FilterBarOption(
                         label: dept.code,
                         selected: _departmentFilter == dept.id,
-                        onSelected: (_) => setState(() => _departmentFilter = _departmentFilter == dept.id ? null : dept.id),
+                        onSelected: () => setState(() => _departmentFilter = _departmentFilter == dept.id ? null : dept.id),
                       ),
-                      const SizedBox(width: AppSpacing.sm),
-                    ],
                   ],
                 ),
-              ),
-              const SizedBox(height: AppSpacing.lg),
-              if (results.isEmpty)
-                const EmptyState(
-                  icon: Icons.person_search_rounded,
-                  title: 'No faculty found',
-                  message: 'Try adjusting your search or filters.',
-                )
-              else
-                AppDataTable(
-                  columns: const [
-                    AppDataColumn(label: 'Faculty', flex: 3),
-                    AppDataColumn(label: 'Employee ID', flex: 2),
-                    AppDataColumn(label: 'Department', flex: 2),
-                    AppDataColumn(label: 'Designation', flex: 2),
-                    AppDataColumn(label: 'Experience', flex: 1),
-                    AppDataColumn(label: '', flex: 1, alignment: Alignment.centerRight),
-                  ],
-                  rows: [
-                    for (final f in results)
-                      AppDataRow(
-                        onTap: () => context.push('/admin/faculty/${f.id}'),
-                        cells: [
-                          Row(
-                            children: [
-                              ProfileAvatar(initials: f.initials, size: 32),
-                              const SizedBox(width: AppSpacing.sm),
-                              Flexible(child: Text(f.name, style: AppTextStyles.labelLg(primaryText), overflow: TextOverflow.ellipsis)),
-                            ],
+                const SizedBox(height: AppSpacing.lg),
+                if (results.isEmpty)
+                  const EmptyState(
+                    icon: Icons.person_search_rounded,
+                    title: 'No faculty found',
+                    message: 'Try adjusting your search or filters.',
+                  )
+                else
+                  EnterpriseDataTable<Faculty>(
+                    items: results,
+                    idOf: (f) => f.id,
+                    searchableText: (f) => '${f.name} ${f.employeeId}',
+                    searchHint: 'Search by name or employee ID…',
+                    onRowTap: (f) => context.push('/admin/faculty/${f.id}'),
+                    exportLabel: 'Export Faculty',
+                    columns: [
+                      EnterpriseColumn<Faculty>(
+                        label: 'Faculty',
+                        flex: 3,
+                        sortValue: (f) => f.name,
+                        cellBuilder: (context, f) => Row(
+                          children: [
+                            ProfileAvatar(initials: f.initials, size: 32),
+                            const SizedBox(width: AppSpacing.sm),
+                            Flexible(child: Text(f.name, style: AppTextStyles.labelLg(primaryText), overflow: TextOverflow.ellipsis)),
+                          ],
+                        ),
+                      ),
+                      EnterpriseColumn<Faculty>(
+                        label: 'Employee ID',
+                        flex: 2,
+                        sortValue: (f) => f.employeeId,
+                        cellBuilder: (context, f) => Text(f.employeeId, style: AppTextStyles.bodySm(secondaryText)),
+                      ),
+                      EnterpriseColumn<Faculty>(
+                        label: 'Department',
+                        flex: 2,
+                        sortValue: (f) => f.department,
+                        cellBuilder: (context, f) => Text(f.department, style: AppTextStyles.bodySm(secondaryText), overflow: TextOverflow.ellipsis),
+                      ),
+                      EnterpriseColumn<Faculty>(
+                        label: 'Designation',
+                        flex: 2,
+                        sortValue: (f) => f.designation,
+                        cellBuilder: (context, f) => Text(f.designation, style: AppTextStyles.bodySm(secondaryText)),
+                      ),
+                      EnterpriseColumn<Faculty>(
+                        label: 'Experience',
+                        flex: 1,
+                        sortValue: (f) => f.experienceYears,
+                        cellBuilder: (context, f) => Text('${f.experienceYears} yrs', style: AppTextStyles.bodySm(secondaryText)),
+                      ),
+                      EnterpriseColumn<Faculty>(
+                        label: '',
+                        flex: 1,
+                        alignment: Alignment.centerRight,
+                        cellBuilder: (context, f) => ActionMenu(items: [
+                          ActionMenuItem(label: 'View profile', icon: Icons.person_outline_rounded, onTap: () => context.push('/admin/faculty/${f.id}')),
+                          ActionMenuItem(label: 'Edit', icon: Icons.edit_outlined, onTap: () {}),
+                          ActionMenuItem(
+                            label: 'Remove',
+                            icon: Icons.delete_outline_rounded,
+                            isDestructive: true,
+                            onTap: () => showConfirmationDialog(
+                              context: context,
+                              title: 'Remove faculty?',
+                              message: 'This will remove ${f.name} from the directory.',
+                              isDestructive: true,
+                              confirmLabel: 'Remove',
+                            ),
                           ),
-                          Text(f.employeeId, style: AppTextStyles.bodySm(secondaryText)),
-                          Text(f.department, style: AppTextStyles.bodySm(secondaryText), overflow: TextOverflow.ellipsis),
-                          Text(f.designation, style: AppTextStyles.bodySm(secondaryText)),
-                          Text('${f.experienceYears} yrs', style: AppTextStyles.bodySm(secondaryText)),
-                          ActionMenu(items: [
-                            ActionMenuItem(label: 'View profile', icon: Icons.person_outline_rounded, onTap: () => context.push('/admin/faculty/${f.id}')),
-                            ActionMenuItem(label: 'Edit', icon: Icons.edit_outlined, onTap: () {}),
-                            ActionMenuItem(label: 'Remove', icon: Icons.delete_outline_rounded, isDestructive: true, onTap: () => showConfirmationDialog(
-                              context: context, title: 'Remove faculty?', message: 'This will remove ${f.name} from the directory.', isDestructive: true, confirmLabel: 'Remove',
-                            )),
-                          ]),
-                        ],
+                        ]),
                       ),
-                  ],
-                ),
-              const SizedBox(height: AppSpacing.xxxl),
-            ],
+                    ],
+                  ),
+                const SizedBox(height: AppSpacing.xxxl),
+              ],
+            ),
           ),
         ),
-      ),
       ),
     );
   }

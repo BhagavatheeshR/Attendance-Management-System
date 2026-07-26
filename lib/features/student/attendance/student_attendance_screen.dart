@@ -4,6 +4,7 @@ import '../../../core/constants.dart';
 import '../../../core/responsive.dart';
 import '../../../mock/attendance.dart';
 import '../../../mock/students.dart';
+import '../../../models/attendance_record.dart';
 import '../../../theme/app_colors.dart';
 import '../../../theme/app_spacing.dart';
 import '../../../theme/app_text_styles.dart';
@@ -62,6 +63,9 @@ class StudentAttendanceScreen extends StatelessWidget {
               ),
             ),
             const SizedBox(height: AppSpacing.lg),
+            const SectionHeader(title: 'Attendance Calendar', subtitle: 'This month, by day'),
+            InfoCard(child: AttendanceCalendar(month: DateTime.now(), percentByDay: _percentByDay(records))),
+            const SizedBox(height: AppSpacing.lg),
             SectionHeader(title: 'Recent Sessions', subtitle: '${records.length} records'),
             for (final r in records) ...[
               InfoCard(
@@ -88,5 +92,21 @@ class StudentAttendanceScreen extends StatelessWidget {
         ),
       ),
     );
+  }
+
+  /// Buckets attendance records into the current calendar month, day -> a
+  /// 0-100 score (absent counts as 0, late as 70, present/excused as 100),
+  /// averaged when a day has more than one recorded session.
+  Map<int, double> _percentByDay(List<AttendanceRecord> records) {
+    final now = DateTime.now();
+    final totals = <int, double>{};
+    final counts = <int, int>{};
+    for (final r in records) {
+      if (r.date.year != now.year || r.date.month != now.month) continue;
+      final score = r.status == AttendanceStatus.absent ? 0.0 : r.status == AttendanceStatus.late ? 70.0 : 100.0;
+      totals[r.date.day] = (totals[r.date.day] ?? 0) + score;
+      counts[r.date.day] = (counts[r.date.day] ?? 0) + 1;
+    }
+    return {for (final day in totals.keys) day: totals[day]! / counts[day]!};
   }
 }

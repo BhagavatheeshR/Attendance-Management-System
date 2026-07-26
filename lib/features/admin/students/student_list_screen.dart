@@ -18,18 +18,14 @@ class StudentListScreen extends StatefulWidget {
 }
 
 class _StudentListScreenState extends State<StudentListScreen> {
-  String _query = '';
   String? _departmentFilter;
   String? _yearFilter;
 
   List<Student> get _filtered {
     return mockStudents.where((s) {
-      final matchesQuery = _query.isEmpty ||
-          s.name.toLowerCase().contains(_query.toLowerCase()) ||
-          s.rollNumber.toLowerCase().contains(_query.toLowerCase());
       final matchesDept = _departmentFilter == null || s.departmentId == _departmentFilter;
       final matchesYear = _yearFilter == null || s.year == _yearFilter;
-      return matchesQuery && matchesDept && matchesYear;
+      return matchesDept && matchesYear;
     }).toList();
   }
 
@@ -70,115 +66,134 @@ class _StudentListScreenState extends State<StudentListScreen> {
           ),
         ),
         child: SingleChildScrollView(
-        padding: Responsive.pagePadding(context),
-        child: Responsive.centered(
-          context: context,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              SectionHeader(title: 'Students', subtitle: '${results.length} of ${mockStudents.length} shown'),
-              AppSearchBar(hint: 'Search by name or roll number…', onChanged: (v) => setState(() => _query = v)),
-              const SizedBox(height: AppSpacing.md),
-              SizedBox(
-                height: 36,
-                child: ListView(
-                  scrollDirection: Axis.horizontal,
-                  children: [
-                    AppFilterChip(
+          padding: Responsive.pagePadding(context),
+          child: Responsive.centered(
+            context: context,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                SectionHeader(title: 'Students', subtitle: '${results.length} of ${mockStudents.length} shown'),
+                const SizedBox(height: AppSpacing.md),
+                FilterBar(
+                  searchHint: 'Search by name or roll number…',
+                  filters: [
+                    FilterBarOption(
                       label: 'All Departments',
                       selected: _departmentFilter == null,
-                      onSelected: (_) => setState(() => _departmentFilter = null),
+                      onSelected: () => setState(() => _departmentFilter = null),
                     ),
-                    const SizedBox(width: AppSpacing.sm),
-                    for (final dept in mockDepartments) ...[
-                      AppFilterChip(
+                    for (final dept in mockDepartments)
+                      FilterBarOption(
                         label: dept.code,
                         selected: _departmentFilter == dept.id,
-                        onSelected: (_) => setState(() => _departmentFilter = _departmentFilter == dept.id ? null : dept.id),
+                        onSelected: () => setState(() => _departmentFilter = _departmentFilter == dept.id ? null : dept.id),
                       ),
-                      const SizedBox(width: AppSpacing.sm),
-                    ],
                   ],
                 ),
-              ),
-              const SizedBox(height: AppSpacing.md),
-              Theme(
-                data: Theme.of(context).copyWith(dividerColor: Colors.transparent),
-                child: ExpansionTile(
-                  tilePadding: EdgeInsets.zero,
-                  title: Text('More Filters', style: AppTextStyles.labelMd(secondaryText)),
-                  childrenPadding: const EdgeInsets.only(bottom: AppSpacing.sm),
+                const SizedBox(height: AppSpacing.md),
+                Wrap(
+                  spacing: AppSpacing.sm,
+                  runSpacing: AppSpacing.sm,
                   children: [
-                    Align(
-                      alignment: Alignment.centerLeft,
-                      child: Wrap(
-                        spacing: AppSpacing.sm,
-                        children: [
-                          for (final year in ['I', 'II', 'III', 'IV'])
-                            AppFilterChip(
-                              label: 'Year $year',
-                              selected: _yearFilter == year,
-                              onSelected: (_) => setState(() => _yearFilter = _yearFilter == year ? null : year),
-                            ),
-                        ],
+                    for (final year in ['I', 'II', 'III', 'IV'])
+                      AppFilterChip(
+                        label: 'Year $year',
+                        selected: _yearFilter == year,
+                        onSelected: (_) => setState(() => _yearFilter = _yearFilter == year ? null : year),
                       ),
-                    ),
                   ],
                 ),
-              ),
-              const SizedBox(height: AppSpacing.lg),
-              if (results.isEmpty)
-                const EmptyState(
-                  icon: Icons.person_search_rounded,
-                  title: 'No students found',
-                  message: 'Try adjusting your search or filters.',
-                )
-              else
-                AppDataTable(
-                  columns: const [
-                    AppDataColumn(label: 'Student', flex: 3),
-                    AppDataColumn(label: 'Roll No.', flex: 2),
-                    AppDataColumn(label: 'Department', flex: 2),
-                    AppDataColumn(label: 'Year', flex: 1),
-                    AppDataColumn(label: 'Attendance', flex: 2),
-                    AppDataColumn(label: 'Status', flex: 2),
-                    AppDataColumn(label: '', flex: 1, alignment: Alignment.centerRight),
-                  ],
-                  rows: [
-                    for (final s in results)
-                      AppDataRow(
-                        onTap: () => context.push('/admin/students/${s.id}'),
-                        cells: [
-                          Row(
-                            children: [
-                              ProfileAvatar(initials: s.initials, size: 32),
-                              const SizedBox(width: AppSpacing.sm),
-                              Flexible(child: Text(s.name, style: AppTextStyles.labelLg(primaryText), overflow: TextOverflow.ellipsis)),
-                            ],
-                          ),
-                          Text(s.rollNumber, style: AppTextStyles.bodySm(secondaryText)),
-                          Text(s.department, style: AppTextStyles.bodySm(secondaryText), overflow: TextOverflow.ellipsis),
-                          Text('Year ${s.year}', style: AppTextStyles.bodySm(secondaryText)),
-                          Text('${s.attendancePercent.toStringAsFixed(1)}%', style: AppTextStyles.labelMd(
+                const SizedBox(height: AppSpacing.lg),
+                if (results.isEmpty)
+                  const EmptyState(
+                    icon: Icons.person_search_rounded,
+                    title: 'No students found',
+                    message: 'Try adjusting your search or filters.',
+                  )
+                else
+                  EnterpriseDataTable<Student>(
+                    items: results,
+                    idOf: (s) => s.id,
+                    searchableText: (s) => '${s.name} ${s.rollNumber}',
+                    searchHint: 'Search by name or roll number…',
+                    onRowTap: (s) => context.push('/admin/students/${s.id}'),
+                    exportLabel: 'Export Students',
+                    columns: [
+                      EnterpriseColumn<Student>(
+                        label: 'Student',
+                        flex: 3,
+                        sortValue: (s) => s.name,
+                        cellBuilder: (context, s) => Row(
+                          children: [
+                            ProfileAvatar(initials: s.initials, size: 32),
+                            const SizedBox(width: AppSpacing.sm),
+                            Flexible(child: Text(s.name, style: AppTextStyles.labelLg(primaryText), overflow: TextOverflow.ellipsis)),
+                          ],
+                        ),
+                      ),
+                      EnterpriseColumn<Student>(
+                        label: 'Roll No.',
+                        flex: 2,
+                        sortValue: (s) => s.rollNumber,
+                        cellBuilder: (context, s) => Text(s.rollNumber, style: AppTextStyles.bodySm(secondaryText)),
+                      ),
+                      EnterpriseColumn<Student>(
+                        label: 'Department',
+                        flex: 2,
+                        sortValue: (s) => s.department,
+                        cellBuilder: (context, s) => Text(s.department, style: AppTextStyles.bodySm(secondaryText), overflow: TextOverflow.ellipsis),
+                      ),
+                      EnterpriseColumn<Student>(
+                        label: 'Year',
+                        flex: 1,
+                        sortValue: (s) => s.year,
+                        cellBuilder: (context, s) => Text('Year ${s.year}', style: AppTextStyles.bodySm(secondaryText)),
+                      ),
+                      EnterpriseColumn<Student>(
+                        label: 'Attendance',
+                        flex: 2,
+                        sortValue: (s) => s.attendancePercent,
+                        cellBuilder: (context, s) => Text(
+                          '${s.attendancePercent.toStringAsFixed(1)}%',
+                          style: AppTextStyles.labelMd(
                             s.attendancePercent >= 90 ? AppColors.success : s.attendancePercent >= 75 ? AppColors.warning : AppColors.error,
-                          )),
-                          StatusBadge(label: s.status),
-                          ActionMenu(items: [
-                            ActionMenuItem(label: 'View profile', icon: Icons.person_outline_rounded, onTap: () => context.push('/admin/students/${s.id}')),
-                            ActionMenuItem(label: 'Edit', icon: Icons.edit_outlined, onTap: () {}),
-                            ActionMenuItem(label: 'Remove', icon: Icons.delete_outline_rounded, isDestructive: true, onTap: () => showConfirmationDialog(
-                              context: context, title: 'Remove student?', message: 'This will remove ${s.name} from the roster.', isDestructive: true, confirmLabel: 'Remove',
-                            )),
-                          ]),
-                        ],
+                          ),
+                        ),
                       ),
-                  ],
-                ),
-              const SizedBox(height: AppSpacing.xxxl),
-            ],
+                      EnterpriseColumn<Student>(
+                        label: 'Status',
+                        flex: 2,
+                        sortValue: (s) => s.status,
+                        cellBuilder: (context, s) => StatusBadge(label: s.status),
+                      ),
+                      EnterpriseColumn<Student>(
+                        label: '',
+                        flex: 1,
+                        alignment: Alignment.centerRight,
+                        cellBuilder: (context, s) => ActionMenu(items: [
+                          ActionMenuItem(label: 'View profile', icon: Icons.person_outline_rounded, onTap: () => context.push('/admin/students/${s.id}')),
+                          ActionMenuItem(label: 'Edit', icon: Icons.edit_outlined, onTap: () {}),
+                          ActionMenuItem(
+                            label: 'Remove',
+                            icon: Icons.delete_outline_rounded,
+                            isDestructive: true,
+                            onTap: () => showConfirmationDialog(
+                              context: context,
+                              title: 'Remove student?',
+                              message: 'This will remove ${s.name} from the roster.',
+                              isDestructive: true,
+                              confirmLabel: 'Remove',
+                            ),
+                          ),
+                        ]),
+                      ),
+                    ],
+                  ),
+                const SizedBox(height: AppSpacing.xxxl),
+              ],
+            ),
           ),
         ),
-      ),
       ),
     );
   }

@@ -1,6 +1,6 @@
 import 'dart:math';
 import '../models/faculty.dart';
-import 'departments.dart';
+import 'department_seeds.dart';
 
 const List<String> _facultyFirstNames = [
   'Emily', 'Raghav', 'Priya', 'Thomas', 'Naomi', 'Marcus', 'Sofia', 'Daniel',
@@ -19,35 +19,39 @@ const List<String> _designations = [
   'Assistant Professor', 'Associate Professor', 'Professor', 'Senior Lecturer',
 ];
 
-const Map<String, List<String>> _subjectPool = {
-  'dept-cse': ['Operating Systems', 'Database Systems', 'Computer Networks', 'Data Structures', 'Algorithms', 'Machine Learning'],
-  'dept-ece': ['Digital Signal Processing', 'VLSI Design', 'Embedded Systems', 'Communication Theory'],
-  'dept-mech': ['Thermodynamics', 'Fluid Mechanics', 'Machine Design', 'Manufacturing Processes'],
-  'dept-civil': ['Structural Analysis', 'Geotechnical Engineering', 'Surveying', 'Construction Management'],
+/// Subject-name pools used only for the "subjects taught" tags on a
+/// faculty profile — the canonical 35-subject catalog lives in
+/// `mock/subjects.dart`.
+const Map<String, List<String>> subjectNamePool = {
+  'dept-cse': ['Operating Systems', 'Database Systems', 'Computer Networks', 'Data Structures'],
+  'dept-ece': ['Digital Signal Processing', 'VLSI Design', 'Embedded Systems'],
+  'dept-mech': ['Thermodynamics', 'Fluid Mechanics', 'Machine Design'],
+  'dept-civil': ['Structural Analysis', 'Geotechnical Engineering', 'Surveying'],
   'dept-eee': ['Power Systems', 'Control Systems', 'Electrical Machines'],
-  'dept-it': ['Web Technologies', 'Cloud Computing', 'Cybersecurity', 'Software Engineering'],
+  'dept-it': ['Web Technologies', 'Cloud Computing', 'Cybersecurity'],
   'dept-biotech': ['Genetics', 'Molecular Biology', 'Bioprocess Engineering'],
-  'dept-chem': ['Chemical Reaction Engineering', 'Process Control', 'Mass Transfer'],
-  'dept-arch': ['Architectural Design', 'Urban Planning', 'Building Technology'],
   'dept-mgmt': ['Marketing Management', 'Financial Accounting', 'Organizational Behavior'],
   'dept-math': ['Linear Algebra', 'Calculus III', 'Probability & Statistics'],
-  'dept-phys': ['Quantum Mechanics', 'Electromagnetism', 'Thermal Physics'],
-  'dept-eng': ['Technical Communication', 'World Literature'],
   'dept-des': ['Design Thinking', 'Visual Communication'],
   'dept-pharm': ['Pharmacology', 'Pharmaceutical Chemistry'],
-  'dept-agri': ['Soil Science', 'Crop Physiology'],
   'dept-law': ['Constitutional Law', 'Contract Law'],
-  'dept-med': ['Human Anatomy', 'Clinical Nutrition'],
 };
+
+/// Exactly 45 faculty, spread across the 12 departments.
+const int totalMockFaculty = 45;
 
 List<Faculty> _generateFaculty() {
   final random = Random(7);
   final faculty = <Faculty>[];
   int counter = 1;
 
-  for (final dept in mockDepartments) {
-    final countForDept = 3 + random.nextInt(3); // 3-5 shown per dept
-    final subjects = _subjectPool[dept.id] ?? const ['General Studies'];
+  final base = totalMockFaculty ~/ departmentSeeds.length; // 3 each
+  final remainder = totalMockFaculty % departmentSeeds.length; // 9 depts get one extra
+
+  for (int d = 0; d < departmentSeeds.length; d++) {
+    final dept = departmentSeeds[d];
+    final countForDept = base + (d < remainder ? 1 : 0);
+    final subjects = subjectNamePool[dept.id] ?? const ['General Studies'];
     for (int i = 0; i < countForDept; i++) {
       final first = _facultyFirstNames[random.nextInt(_facultyFirstNames.length)];
       final last = _facultyLastNames[random.nextInt(_facultyLastNames.length)];
@@ -73,6 +77,7 @@ List<Faculty> _generateFaculty() {
   return faculty;
 }
 
+/// The full faculty dataset — exactly 45 records.
 final List<Faculty> mockFaculty = _generateFaculty();
 
 /// Featured faculty member from the spec's "Mock Data Example".

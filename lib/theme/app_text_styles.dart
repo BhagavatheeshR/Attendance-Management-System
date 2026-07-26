@@ -72,4 +72,19 @@ class AppTextStyles {
   // Convenience: default (light theme, primary text) shorthands used widely.
   static TextStyle get title => h1(AppColors.textPrimary);
   static TextStyle get subtitle => bodyMd(AppColors.textSecondary);
+
+  // ---- Named scale per the design-system spec: Display / Headline /
+  // Title / Body / Caption at weights 700 / 600 / 500 / 400. These are
+  // additive aliases (existing displayLg/h1/h3/bodyMd/caption above are
+  // unchanged) used by newer components in this pass.
+  static TextStyle display(Color c, {double size = 32}) =>
+      _base(size: size, weight: FontWeight.w700, color: c, height: 1.2, letterSpacing: -0.5);
+  static TextStyle headline(Color c, {double size = 20}) =>
+      _base(size: size, weight: FontWeight.w600, color: c, height: 1.3);
+  static TextStyle titleStyle(Color c, {double size = 16}) =>
+      _base(size: size, weight: FontWeight.w500, color: c, height: 1.35);
+  static TextStyle bodyStyle(Color c, {double size = 14}) =>
+      _base(size: size, weight: FontWeight.w400, color: c, height: 1.5);
+  static TextStyle captionStyle(Color c, {double size = 12}) =>
+      _base(size: size, weight: FontWeight.w400, color: c, height: 1.3);
 }

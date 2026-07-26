@@ -22,8 +22,13 @@ class Responsive {
   static bool isDesktop(BuildContext context) => deviceType(context) == DeviceType.desktop;
   static bool isDesktopOrTablet(BuildContext context) => !isMobile(context);
 
+  /// True on ultrawide monitors (>= 1920px) — content still centers with a
+  /// wider cap rather than stretching every card edge-to-edge.
+  static bool isUltrawide(BuildContext context) => MediaQuery.sizeOf(context).width >= AppBreakpoints.ultrawide;
+
   /// Number of grid columns for stat/card grids at the current width.
   static int gridColumns(BuildContext context) {
+    if (isUltrawide(context)) return 6;
     switch (deviceType(context)) {
       case DeviceType.mobile:
         return 2;
@@ -51,7 +56,9 @@ class Responsive {
     return Align(
       alignment: Alignment.topCenter,
       child: ConstrainedBox(
-        constraints: const BoxConstraints(maxWidth: AppSpacing.maxContentWidth),
+        constraints: BoxConstraints(
+          maxWidth: isUltrawide(context) ? AppSpacing.maxContentWidthUltrawide : AppSpacing.maxContentWidth,
+        ),
         child: child,
       ),
     );

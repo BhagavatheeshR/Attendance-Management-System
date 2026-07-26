@@ -1,16 +1,20 @@
 import '../models/event_item.dart';
 import '../models/notification_item.dart';
 import 'departments.dart';
+import 'faculty.dart';
+import 'students.dart';
+import 'subjects.dart';
+import 'timetable.dart';
 
-/// Institution-wide KPI numbers shown on the Admin dashboard header.
-/// (These reflect the full institution; the generated student/faculty
-/// lists elsewhere are a representative sample used to power list/detail
-/// screens, exactly as a paginated production API would return a page at
-/// a time.)
-const int totalStudents = 12846;
-const int totalFaculty = 648;
+/// KPI numbers shown on the Admin dashboard header — computed straight
+/// from the generated datasets (250 students / 45 faculty / 12
+/// departments / 35 subjects), so the headline stats always match what
+/// the list screens actually contain.
+int get totalStudents => mockStudents.length;
+int get totalFaculty => mockFaculty.length;
 int get totalDepartments => mockDepartments.length;
-const int activeClasses = 124;
+int get totalSubjects => mockSubjects.length;
+int get activeClasses => mockTimetable.where((t) => t.day == todayName()).length;
 
 final List<ActivityItem> recentActivity = [
   ActivityItem(

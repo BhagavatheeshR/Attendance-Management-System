@@ -1,16 +1,19 @@
 import 'dart:math';
 import '../models/timetable_entry.dart';
-import 'departments.dart';
+import 'department_seeds.dart';
+import 'faculty.dart';
+import 'rooms.dart';
+import 'subjects.dart';
 
 const List<String> weekDays = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
 
 const List<Map<String, String>> _cseYear3Slots = [
-  {'start': '09:00', 'end': '09:50', 'subject': 'Operating Systems', 'code': 'CS301'},
-  {'start': '10:00', 'end': '10:50', 'subject': 'Database Systems', 'code': 'CS302'},
-  {'start': '11:10', 'end': '12:00', 'subject': 'Computer Networks', 'code': 'CS303'},
-  {'start': '12:00', 'end': '12:50', 'subject': 'Data Structures', 'code': 'CS304'},
-  {'start': '14:00', 'end': '14:50', 'subject': 'Machine Learning', 'code': 'CS305'},
-  {'start': '15:00', 'end': '15:50', 'subject': 'Algorithms', 'code': 'CS306'},
+  {'start': '09:00', 'end': '09:50', 'subject': 'Operating Systems', 'code': 'CSE300'},
+  {'start': '10:00', 'end': '10:50', 'subject': 'Database Systems', 'code': 'CSE301'},
+  {'start': '11:10', 'end': '12:00', 'subject': 'Computer Networks', 'code': 'CSE302'},
+  {'start': '12:00', 'end': '12:50', 'subject': 'Data Structures', 'code': 'CSE303'},
+  {'start': '14:00', 'end': '14:50', 'subject': 'Machine Learning', 'code': 'CSE304'},
+  {'start': '15:00', 'end': '15:50', 'subject': 'Algorithms', 'code': 'CSE305'},
 ];
 
 /// The fixed weekly timetable for CSE - Year III, shared by the demo
@@ -29,7 +32,7 @@ List<TimetableEntry> _buildCseYear3Timetable() {
         subject: slot['subject']!,
         subjectCode: slot['code']!,
         facultyName: 'Dr. Emily Carter',
-        room: 'Room ${201 + (id % 6)}',
+        room: roomFor(id),
         departmentId: 'dept-cse',
         year: 'III',
       ));
@@ -41,33 +44,38 @@ List<TimetableEntry> _buildCseYear3Timetable() {
 
 final List<TimetableEntry> cseYear3Timetable = _buildCseYear3Timetable();
 
-/// A broader (lighter) generated timetable across all departments/years so
-/// the Admin "Create/View Timetable" screen has real filtering options.
+/// A broader generated timetable across all departments/years, built from
+/// the real 35-subject catalog and 45-faculty roster (not invented
+/// placeholder names), so the Admin "Timetable" screen has real filtering
+/// options that agree with the rest of the data.
 List<TimetableEntry> _buildAllTimetables() {
   final random = Random(11);
   final entries = <TimetableEntry>[...cseYear3Timetable];
-  final genericSubjects = [
-    'Core Theory', 'Applied Lab', 'Seminar', 'Workshop', 'Studio Session', 'Tutorial',
-  ];
   final years = ['I', 'II', 'III', 'IV'];
 
-  for (final dept in mockDepartments) {
+  for (final dept in departmentSeeds) {
     if (dept.id == 'dept-cse') continue;
+    final deptSubjects = subjectsByDepartment(dept.id);
+    final deptFaculty = facultyByDepartment(dept.id);
+    if (deptSubjects.isEmpty || deptFaculty.isEmpty) continue;
+
     for (final year in years) {
       final slotsForYear = 3 + random.nextInt(3);
       int id = 1;
       for (final day in weekDays.take(5)) {
         for (int i = 0; i < slotsForYear; i++) {
-          final hour = 9 + i * 1;
+          final hour = 9 + i;
+          final subject = deptSubjects[i % deptSubjects.length];
+          final faculty = deptFaculty[i % deptFaculty.length];
           entries.add(TimetableEntry(
             id: 'tt-${dept.id}-$year-$day-$id',
             day: day,
             startTime: '${hour.toString().padLeft(2, '0')}:00',
             endTime: '${hour.toString().padLeft(2, '0')}:50',
-            subject: '${genericSubjects[random.nextInt(genericSubjects.length)]} ${i + 1}',
-            subjectCode: '${dept.code}${100 + i}',
-            facultyName: 'Dept. Faculty',
-            room: 'Room ${300 + random.nextInt(60)}',
+            subject: subject.name,
+            subjectCode: subject.code,
+            facultyName: faculty.name,
+            room: roomFor(random.nextInt(mockRooms.length)),
             departmentId: dept.id,
             year: year,
           ));

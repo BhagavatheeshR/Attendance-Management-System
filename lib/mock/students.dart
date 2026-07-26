@@ -1,6 +1,6 @@
 import 'dart:math';
 import '../models/student.dart';
-import 'departments.dart';
+import 'department_seeds.dart';
 
 const List<String> _firstNames = [
   'Aarav', 'Vivaan', 'Aditya', 'Vihaan', 'Arjun', 'Sai', 'Reyansh', 'Krishna',
@@ -26,16 +26,20 @@ const List<String> _lastNames = [
 
 const List<String> _years = ['I', 'II', 'III', 'IV'];
 
+/// Exactly 250 students, spread evenly across the 12 departments.
+const int totalMockStudents = 250;
+
 List<Student> _generateStudents() {
   final random = Random(42);
   final students = <Student>[];
   int counter = 1;
 
-  for (final dept in mockDepartments) {
-    // A representative slice per department (not the full headcount, which
-    // would be tens of thousands of rows) — enough to power realistic
-    // list/detail/search screens.
-    final countForDept = 8 + random.nextInt(6); // 8-13 students shown per dept
+  final base = totalMockStudents ~/ departmentSeeds.length; // 20 each
+  final remainder = totalMockStudents % departmentSeeds.length; // extra 10, one per first 10 depts
+
+  for (int d = 0; d < departmentSeeds.length; d++) {
+    final dept = departmentSeeds[d];
+    final countForDept = base + (d < remainder ? 1 : 0);
     for (int i = 0; i < countForDept; i++) {
       final first = _firstNames[random.nextInt(_firstNames.length)];
       final last = _lastNames[random.nextInt(_lastNames.length)];
@@ -64,6 +68,7 @@ List<Student> _generateStudents() {
   return students;
 }
 
+/// The full student dataset — exactly 250 records.
 final List<Student> mockStudents = _generateStudents();
 
 /// The signed-in demo student used across the Student portal ("Hello Sarathy").

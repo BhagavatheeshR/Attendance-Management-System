@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
+import '../../../core/constants.dart';
 import '../../../core/responsive.dart';
 import '../../../mock/attendance.dart';
+import '../../../mock/departments.dart';
 import '../../../models/attendance_record.dart';
 import '../../../theme/app_colors.dart';
 import '../../../theme/app_spacing.dart';
@@ -45,13 +47,53 @@ class AdminReportsScreen extends StatelessWidget {
             _ResponsiveChartRow(
               isDesktop: isDesktop,
               children: [
-                ChartCard(title: 'Attendance Trend', subtitle: 'Last 6 months', child: _lineChart(monthlyAttendanceTrend, context)),
+                ChartCard(
+                  title: 'Attendance Trend',
+                  subtitle: 'Last 6 months',
+                  child: AreaChart(
+                    labels: [for (final p in monthlyAttendanceTrend) p.label],
+                    values: [for (final p in monthlyAttendanceTrend) p.percent],
+                    minY: 85,
+                    maxY: 100,
+                  ),
+                ),
                 ChartCard(title: 'Weekly Attendance', subtitle: 'This week', child: _barChart(
                   labels: [for (final p in weeklyAttendanceTrend) p.label],
                   values: [for (final p in weeklyAttendanceTrend) p.percent],
                   color: AppColors.success,
                   context: context,
                 )),
+              ],
+            ),
+            const SizedBox(height: AppSpacing.lg),
+            _ResponsiveChartRow(
+              isDesktop: isDesktop,
+              children: [
+                ChartCard(
+                  title: 'Attendance Composition',
+                  subtitle: '${mockAttendanceRecords.length} records across the institution',
+                  child: DonutChart(
+                    centerLabel: '${mockAttendanceRecords.length}',
+                    segments: [
+                      for (final entry in attendanceStatusBreakdown.entries)
+                        DonutSegment(
+                          label: entry.key.label,
+                          value: entry.value.toDouble(),
+                          color: AppColors.statusColor(entry.key.label),
+                        ),
+                    ],
+                  ),
+                ),
+                ChartCard(
+                  title: 'Attendance Heat Map',
+                  subtitle: 'Department x weekday, avg. attendance',
+                  height: 360,
+                  child: HeatMap(
+                    rowLabels: [for (final d in mockDepartments) d.code],
+                    columnLabels: heatmapWeekdays,
+                    values: departmentWeekdayHeatmap,
+                  ),
+                ),
               ],
             ),
             const SizedBox(height: AppSpacing.lg),
@@ -95,42 +137,6 @@ class AdminReportsScreen extends StatelessWidget {
 
   void _exportSnack(BuildContext context, String format) {
     ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Preparing $format export…')));
-  }
-
-  Widget _lineChart(List<AttendanceTrendPoint> points, BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-    final secondaryText = isDark ? AppColors.textSecondaryDark : AppColors.textSecondary;
-    return LineChart(
-      LineChartData(
-        minY: 85,
-        maxY: 100,
-        gridData: FlGridData(show: true, drawVerticalLine: false, horizontalInterval: 5,
-            getDrawingHorizontalLine: (v) => FlLine(color: isDark ? AppColors.borderDark : AppColors.divider, strokeWidth: 1)),
-        titlesData: FlTitlesData(
-          topTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
-          rightTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
-          leftTitles: AxisTitles(sideTitles: SideTitles(showTitles: true, reservedSize: 34, interval: 5,
-              getTitlesWidget: (v, m) => Text('${v.toInt()}%', style: AppTextStyles.caption(secondaryText)))),
-          bottomTitles: AxisTitles(sideTitles: SideTitles(showTitles: true, getTitlesWidget: (v, m) {
-            final i = v.toInt();
-            if (i < 0 || i >= points.length) return const SizedBox.shrink();
-            return Padding(padding: const EdgeInsets.only(top: 6), child: Text(points[i].label, style: AppTextStyles.caption(secondaryText)));
-          })),
-        ),
-        borderData: FlBorderData(show: false),
-        lineBarsData: [
-          LineChartBarData(
-            spots: [for (int i = 0; i < points.length; i++) FlSpot(i.toDouble(), points[i].percent)],
-            isCurved: true,
-            color: AppColors.primary,
-            barWidth: 2.5,
-            dotData: const FlDotData(show: false),
-            belowBarData: BarAreaData(show: true, gradient: LinearGradient(begin: Alignment.topCenter, end: Alignment.bottomCenter,
-                colors: [AppColors.primary.withValues(alpha: 0.16), AppColors.primary.withValues(alpha: 0)])),
-          ),
-        ],
-      ),
-    );
   }
 
   Widget _barChart({

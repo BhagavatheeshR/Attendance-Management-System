@@ -4,6 +4,7 @@ import '../../app/app_state.dart';
 import '../../core/app_flavor.dart';
 import '../../core/constants.dart';
 import '../../theme/app_colors.dart';
+import '../../theme/app_shadows.dart';
 import '../../theme/app_spacing.dart';
 import '../../theme/app_text_styles.dart';
 import '../../shared/widgets/glass_container.dart';
@@ -224,9 +225,7 @@ class _RoleSegmentedControl extends StatelessWidget {
                 decoration: BoxDecoration(
                   color: isSelected ? AppColors.card : Colors.transparent,
                   borderRadius: BorderRadius.circular(AppSpacing.radiusSm),
-                  boxShadow: isSelected
-                      ? [BoxShadow(color: Colors.black.withValues(alpha: 0.06), blurRadius: 6, offset: const Offset(0, 1))]
-                      : null,
+                  boxShadow: isSelected ? AppShadows.low : null,
                 ),
                 alignment: Alignment.center,
                 child: Text(
