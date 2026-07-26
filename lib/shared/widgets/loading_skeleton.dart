@@ -52,13 +52,16 @@ class SkeletonStatCard extends StatelessWidget {
         borderRadius: BorderRadius.circular(AppSpacing.radiusLg),
         border: Border.all(color: isDark ? AppColors.borderDark : AppColors.border),
       ),
+      // Distribute with spaceBetween (rather than fixed-height gaps) so this
+      // never overflows: it only ever needs the sum of the three
+      // placeholders' own heights (68px), and adapts to whatever room the
+      // surrounding grid cell actually gives it.
       child: const Column(
         crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           LoadingSkeleton(width: 32, height: 32, borderRadius: AppSpacing.radiusMd),
-          SizedBox(height: AppSpacing.md),
           LoadingSkeleton(width: 80, height: 24),
-          SizedBox(height: AppSpacing.xs),
           LoadingSkeleton(width: 100, height: 12),
         ],
       ),

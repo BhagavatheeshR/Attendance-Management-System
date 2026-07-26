@@ -38,6 +38,10 @@ class StatCard extends StatelessWidget {
     return InfoCard(
       onTap: onTap,
       enableHover: onTap != null,
+      // The icon row is pinned to the top and the value/label pair is kept
+      // tightly grouped together; the Spacer (rather than a fixed-height
+      // gap) absorbs whatever room is left, so this never overflows a
+      // tight grid cell even at narrow aspect ratios.
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -55,10 +59,16 @@ class StatCard extends StatelessWidget {
               if (trendLabel != null) _TrendPill(label: trendLabel!, trend: trend),
             ],
           ),
-          const SizedBox(height: AppSpacing.md),
-          Text(value, style: AppTextStyles.statValue(primaryText)),
-          const SizedBox(height: 2),
-          Text(label, style: AppTextStyles.bodySm(secondaryText)),
+          const Spacer(),
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(value, style: AppTextStyles.statValue(primaryText)),
+              const SizedBox(height: 2),
+              Text(label, style: AppTextStyles.bodySm(secondaryText)),
+            ],
+          ),
         ],
       ),
     );

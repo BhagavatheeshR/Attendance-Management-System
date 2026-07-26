@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
+import '../core/app_flavor.dart';
+import '../core/page_transitions.dart';
 import '../features/auth/login_screen.dart';
 
 import '../features/admin/admin_shell.dart';
@@ -33,11 +35,29 @@ import '../features/student/profile/student_profile_screen.dart';
 
 final rootNavigatorKey = GlobalKey<NavigatorState>();
 
-final GoRouter appRouter = GoRouter(
+/// Builds the router for a given [flavor]. Each entry point
+/// (`admin_main.dart`, `staff_student_main.dart`, and the convenience
+/// default `main.dart`) calls this with its own fixed flavor, so which
+/// portals exist in the binary is decided at launch — not guessed from the
+/// runtime platform.
+GoRouter buildRouter(AppFlavor flavor) => GoRouter(
   navigatorKey: rootNavigatorKey,
   initialLocation: '/login',
+  // Belt-and-suspenders: also block direct/deep links that try to cross
+  // the Admin vs Faculty/Student boundary, in addition to the login
+  // screen's role picker already only offering roles for this flavor.
+  redirect: (context, state) {
+    final path = state.matchedLocation;
+    if (flavor == AppFlavor.admin && (path.startsWith('/faculty') || path.startsWith('/student'))) {
+      return '/login';
+    }
+    if (flavor == AppFlavor.staffStudent && path.startsWith('/admin')) {
+      return '/login';
+    }
+    return null;
+  },
   routes: [
-    GoRoute(path: '/login', builder: (context, state) => const LoginScreen()),
+    GoRoute(path: '/login', pageBuilder: (context, state) => fadePage(child: LoginScreen(flavor: flavor), state: state)),
 
     // ---------------- Admin ----------------
     StatefulShellRoute.indexedStack(
@@ -54,7 +74,10 @@ final GoRouter appRouter = GoRouter(
               GoRoute(
                 path: ':id',
                 parentNavigatorKey: rootNavigatorKey,
-                builder: (context, state) => StudentDetailScreen(studentId: state.pathParameters['id']!),
+                pageBuilder: (context, state) => slidePage(
+                  child: StudentDetailScreen(studentId: state.pathParameters['id']!),
+                  state: state,
+                ),
               ),
             ],
           ),
@@ -67,7 +90,10 @@ final GoRouter appRouter = GoRouter(
               GoRoute(
                 path: ':id',
                 parentNavigatorKey: rootNavigatorKey,
-                builder: (context, state) => FacultyDetailScreen(facultyId: state.pathParameters['id']!),
+                pageBuilder: (context, state) => slidePage(
+                  child: FacultyDetailScreen(facultyId: state.pathParameters['id']!),
+                  state: state,
+                ),
               ),
             ],
           ),
@@ -83,7 +109,10 @@ final GoRouter appRouter = GoRouter(
               GoRoute(
                 path: ':id',
                 parentNavigatorKey: rootNavigatorKey,
-                builder: (context, state) => DepartmentDetailScreen(departmentId: state.pathParameters['id']!),
+                pageBuilder: (context, state) => slidePage(
+                  child: DepartmentDetailScreen(departmentId: state.pathParameters['id']!),
+                  state: state,
+                ),
               ),
             ],
           ),
@@ -112,7 +141,10 @@ final GoRouter appRouter = GoRouter(
               GoRoute(
                 path: 'session/:classId',
                 parentNavigatorKey: rootNavigatorKey,
-                builder: (context, state) => MarkAttendanceScreen(classId: state.pathParameters['classId']!),
+                pageBuilder: (context, state) => slidePage(
+                  child: MarkAttendanceScreen(classId: state.pathParameters['classId']!),
+                  state: state,
+                ),
               ),
             ],
           ),

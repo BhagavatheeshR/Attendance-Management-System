@@ -42,7 +42,7 @@ class AdminDashboardScreen extends StatelessWidget {
               physics: const NeverScrollableScrollPhysics(),
               crossAxisSpacing: AppSpacing.lg,
               mainAxisSpacing: AppSpacing.lg,
-              childAspectRatio: 1.5,
+              childAspectRatio: 1.3,
               children: [
                 StatCard(
                   label: "Today's Attendance",

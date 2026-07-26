@@ -36,7 +36,7 @@ class _InfoCardState extends State<InfoCard> {
       curve: Curves.easeOut,
       padding: widget.padding,
       transform: _hovering && widget.enableHover
-          ? (Matrix4.identity()..translate(0.0, -2.0))
+          ? (Matrix4.identity()..translateByDouble(0.0, -2.0, 0.0, 1.0))
           : Matrix4.identity(),
       decoration: BoxDecoration(
         color: cardColor,

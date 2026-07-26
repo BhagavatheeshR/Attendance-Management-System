@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
+import '../core/app_flavor.dart';
 import '../core/constants.dart';
 import '../theme/app_theme.dart';
 import 'app_state.dart';
 import 'routes.dart';
 
 class AttenceApp extends StatefulWidget {
-  const AttenceApp({super.key});
+  final AppFlavor flavor;
+  const AttenceApp({super.key, required this.flavor});
 
   @override
   State<AttenceApp> createState() => _AttenceAppState();
@@ -13,6 +15,7 @@ class AttenceApp extends StatefulWidget {
 
 class _AttenceAppState extends State<AttenceApp> {
   final AppState _appState = AppState();
+  late final _router = buildRouter(widget.flavor);
 
   @override
   void initState() {
@@ -39,7 +42,7 @@ class _AttenceAppState extends State<AttenceApp> {
         theme: AppTheme.light(),
         darkTheme: AppTheme.dark(),
         themeMode: _appState.themeMode,
-        routerConfig: appRouter,
+        routerConfig: _router,
       ),
     );
   }

@@ -1,22 +1,27 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import '../../app/app_state.dart';
+import '../../core/app_flavor.dart';
 import '../../core/constants.dart';
 import '../../theme/app_colors.dart';
 import '../../theme/app_spacing.dart';
 import '../../theme/app_text_styles.dart';
 import '../../shared/widgets/glass_container.dart';
+import '../../shared/widgets/info_chip.dart';
 import '../../shared/widgets/primary_button.dart';
 
 class LoginScreen extends StatefulWidget {
-  const LoginScreen({super.key});
+  final AppFlavor flavor;
+  const LoginScreen({super.key, required this.flavor});
 
   @override
   State<LoginScreen> createState() => _LoginScreenState();
 }
 
 class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStateMixin {
-  UserRole _selectedRole = UserRole.admin;
+  List<UserRole> get _availableRoles => widget.flavor.availableRoles;
+
+  late UserRole _selectedRole = _availableRoles.first;
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
   bool _isLoading = false;
@@ -136,11 +141,18 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
         Text(AppConstants.appName, style: AppTextStyles.displaySm(AppColors.textPrimary)),
         const SizedBox(height: 4),
         Text('Sign in to continue to your dashboard', style: AppTextStyles.bodyMd(AppColors.textSecondary)),
+        const SizedBox(height: AppSpacing.md),
+        InfoChip(
+          icon: widget.flavor == AppFlavor.admin ? Icons.language_rounded : Icons.smartphone_rounded,
+          label: widget.flavor == AppFlavor.admin ? 'Web console · Administrator access' : 'App · Faculty & Student access',
+        ),
         const SizedBox(height: AppSpacing.xl),
-        Text('I am signing in as', style: AppTextStyles.labelMd(AppColors.textSecondary)),
-        const SizedBox(height: AppSpacing.sm),
-        _RoleSegmentedControl(selected: _selectedRole, onChanged: _selectRole),
-        const SizedBox(height: AppSpacing.xl),
+        if (_availableRoles.length > 1) ...[
+          Text('I am signing in as', style: AppTextStyles.labelMd(AppColors.textSecondary)),
+          const SizedBox(height: AppSpacing.sm),
+          _RoleSegmentedControl(roles: _availableRoles, selected: _selectedRole, onChanged: _selectRole),
+          const SizedBox(height: AppSpacing.xl),
+        ],
         Text('Email', style: AppTextStyles.labelMd(AppColors.textSecondary)),
         const SizedBox(height: 6),
         TextField(
@@ -172,7 +184,9 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
         const SizedBox(height: AppSpacing.lg),
         Center(
           child: Text(
-            'Demo credentials are pre-filled — just pick a role and sign in.',
+            _availableRoles.length > 1
+                ? 'Demo credentials are pre-filled — just pick a role and sign in.'
+                : 'Demo credentials are pre-filled — just sign in.',
             textAlign: TextAlign.center,
             style: AppTextStyles.caption(AppColors.textTertiary),
           ),
@@ -183,10 +197,11 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
 }
 
 class _RoleSegmentedControl extends StatelessWidget {
+  final List<UserRole> roles;
   final UserRole selected;
   final ValueChanged<UserRole> onChanged;
 
-  const _RoleSegmentedControl({required this.selected, required this.onChanged});
+  const _RoleSegmentedControl({required this.roles, required this.selected, required this.onChanged});
 
   @override
   Widget build(BuildContext context) {
@@ -198,7 +213,7 @@ class _RoleSegmentedControl extends StatelessWidget {
         border: Border.all(color: AppColors.border),
       ),
       child: Row(
-        children: UserRole.values.map((role) {
+        children: roles.map((role) {
           final isSelected = role == selected;
           return Expanded(
             child: GestureDetector(

@@ -42,6 +42,11 @@ class _StudentListScreenState extends State<StudentListScreen> {
 
     return Scaffold(
       floatingActionButton: FloatingActionButton.extended(
+        // Several of these FABs live in branches of the same
+        // StatefulShellRoute IndexedStack, so they're mounted
+        // simultaneously — each needs its own hero tag (or none) to avoid
+        // "multiple heroes share the same tag" during page transitions.
+        heroTag: 'fab-add-student',
         onPressed: () => showAddStudentSheet(context),
         icon: const Icon(Icons.person_add_alt_1_rounded),
         label: const Text('Add Student'),
@@ -97,16 +102,29 @@ class _StudentListScreenState extends State<StudentListScreen> {
                 ),
               ),
               const SizedBox(height: AppSpacing.md),
-              Wrap(
-                spacing: AppSpacing.sm,
-                children: [
-                  for (final year in ['I', 'II', 'III', 'IV'])
-                    AppFilterChip(
-                      label: 'Year $year',
-                      selected: _yearFilter == year,
-                      onSelected: (_) => setState(() => _yearFilter = _yearFilter == year ? null : year),
+              Theme(
+                data: Theme.of(context).copyWith(dividerColor: Colors.transparent),
+                child: ExpansionTile(
+                  tilePadding: EdgeInsets.zero,
+                  title: Text('More Filters', style: AppTextStyles.labelMd(secondaryText)),
+                  childrenPadding: const EdgeInsets.only(bottom: AppSpacing.sm),
+                  children: [
+                    Align(
+                      alignment: Alignment.centerLeft,
+                      child: Wrap(
+                        spacing: AppSpacing.sm,
+                        children: [
+                          for (final year in ['I', 'II', 'III', 'IV'])
+                            AppFilterChip(
+                              label: 'Year $year',
+                              selected: _yearFilter == year,
+                              onSelected: (_) => setState(() => _yearFilter = _yearFilter == year ? null : year),
+                            ),
+                        ],
+                      ),
                     ),
-                ],
+                  ],
+                ),
               ),
               const SizedBox(height: AppSpacing.lg),
               if (results.isEmpty)
@@ -160,6 +178,7 @@ class _StudentListScreenState extends State<StudentListScreen> {
             ],
           ),
         ),
+      ),
       ),
     );
   }

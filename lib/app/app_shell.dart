@@ -78,7 +78,7 @@ class _AppShellState extends State<AppShell> {
     );
   }
 
-  PreferredSizeWidget _topBar(BuildContext context, {bool showMenuLabel = true}) {
+  PreferredSizeWidget _topBar(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final app = AppStateScope.of(context);
     return AppBar(

@@ -19,7 +19,7 @@ class MarkAttendanceScreen extends StatefulWidget {
 }
 
 class _MarkAttendanceScreenState extends State<MarkAttendanceScreen> {
-  late Set<String> _absentIds = Set.from(currentSessionAbsentIds);
+  final Set<String> _absentIds = Set.from(currentSessionAbsentIds);
   String _query = '';
   bool _submitted = false;
 
@@ -64,6 +64,7 @@ class _MarkAttendanceScreenState extends State<MarkAttendanceScreen> {
         title: const Text('Database Systems'),
       ),
       floatingActionButton: FloatingActionButton.extended(
+        heroTag: 'fab-submit-attendance',
         onPressed: _submitted ? null : _submit,
         icon: const Icon(Icons.check_rounded),
         label: const Text('Submit Attendance'),

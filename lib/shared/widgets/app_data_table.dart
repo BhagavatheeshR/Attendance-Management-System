@@ -43,8 +43,13 @@ class AppDataTable extends StatelessWidget {
 
     return LayoutBuilder(
       builder: (context, constraints) {
+        // A horizontal SingleChildScrollView gives its child an unbounded
+        // width, so the child needs a *tight* (exact) width of its own —
+        // not just a minWidth — otherwise the Expanded columns inside the
+        // header/row Rows have nothing finite to flex against.
+        final tableWidth = constraints.maxWidth < minWidth ? minWidth : constraints.maxWidth;
         final table = Container(
-          constraints: BoxConstraints(minWidth: constraints.maxWidth < minWidth ? minWidth : constraints.maxWidth),
+          width: tableWidth,
           decoration: BoxDecoration(
             color: cardColor,
             borderRadius: BorderRadius.circular(AppSpacing.radiusLg),

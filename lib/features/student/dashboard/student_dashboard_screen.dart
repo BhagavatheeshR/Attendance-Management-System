@@ -215,7 +215,14 @@ class _ShortcutCard extends StatelessWidget {
             child: Icon(icon, size: 18, color: color),
           ),
           const SizedBox(width: AppSpacing.md),
-          Text(label, style: AppTextStyles.labelLg(isDark ? AppColors.textPrimaryDark : AppColors.textPrimary)),
+          Expanded(
+            child: Text(
+              label,
+              style: AppTextStyles.labelLg(isDark ? AppColors.textPrimaryDark : AppColors.textPrimary),
+              overflow: TextOverflow.ellipsis,
+              maxLines: 1,
+            ),
+          ),
         ],
       ),
     );

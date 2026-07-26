@@ -40,11 +40,30 @@ class _FacultyListScreenState extends State<FacultyListScreen> {
 
     return Scaffold(
       floatingActionButton: FloatingActionButton.extended(
+        heroTag: 'fab-add-faculty',
         onPressed: () => showAddFacultySheet(context),
         icon: const Icon(Icons.badge_outlined),
         label: const Text('Add Faculty'),
       ),
-      body: SingleChildScrollView(
+      body: LoadingGate(
+        skeleton: SingleChildScrollView(
+          padding: Responsive.pagePadding(context),
+          physics: const NeverScrollableScrollPhysics(),
+          child: Responsive.centered(
+            context: context,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const LoadingSkeleton(width: 160, height: 24),
+                const SizedBox(height: AppSpacing.lg),
+                const LoadingSkeleton(height: 44, borderRadius: AppSpacing.radiusMd),
+                const SizedBox(height: AppSpacing.lg),
+                InfoCard(child: Column(children: List.generate(6, (_) => const SkeletonListTile()))),
+              ],
+            ),
+          ),
+        ),
+        child: SingleChildScrollView(
         padding: Responsive.pagePadding(context),
         child: Responsive.centered(
           context: context,
@@ -124,6 +143,7 @@ class _FacultyListScreenState extends State<FacultyListScreen> {
             ],
           ),
         ),
+      ),
       ),
     );
   }

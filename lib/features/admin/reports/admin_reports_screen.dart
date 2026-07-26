@@ -180,7 +180,7 @@ class AdminReportsScreen extends StatelessWidget {
     final secondaryText = isDark ? AppColors.textSecondaryDark : AppColors.textSecondary;
     return ListView.separated(
       itemCount: points.length,
-      separatorBuilder: (_, __) => const SizedBox(height: AppSpacing.sm),
+      separatorBuilder: (context, index) => const SizedBox(height: AppSpacing.sm),
       itemBuilder: (context, i) {
         final p = points[i];
         final pct = p.percent / 100;
