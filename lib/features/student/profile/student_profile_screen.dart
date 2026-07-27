@@ -27,22 +27,10 @@ class StudentProfileScreen extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             const SectionHeader(title: 'Profile'),
-            GlassContainer(
-              child: Row(
-                children: [
-                  ProfileAvatar(initials: student.initials, size: 56, showStatusDot: true),
-                  const SizedBox(width: AppSpacing.lg),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(student.name, style: AppTextStyles.h1(primaryText)),
-                        Text('${student.rollNumber} · ${student.department}', style: AppTextStyles.bodySm(secondaryText)),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
+            ProfileCard(
+              initials: student.initials,
+              name: student.name,
+              subtitle: '${student.rollNumber} · ${student.department}',
             ),
             const SizedBox(height: AppSpacing.lg),
             InfoCard(

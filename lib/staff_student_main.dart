@@ -5,7 +5,7 @@ import 'core/app_flavor.dart';
 
 /// Entry point for the Faculty & Student app build.
 ///
-///   flutter run   -t lib/staff_student_main.dart -d <device>
+///   flutter run   -t lib/staff_student_main.dart -d <android/ios device>
 ///   flutter build apk -t lib/staff_student_main.dart
 ///   flutter build ios -t lib/staff_student_main.dart
 ///

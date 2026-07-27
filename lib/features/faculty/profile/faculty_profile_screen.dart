@@ -27,22 +27,10 @@ class FacultyProfileScreen extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             const SectionHeader(title: 'Profile'),
-            GlassContainer(
-              child: Row(
-                children: [
-                  ProfileAvatar(initials: faculty.initials, size: 56, showStatusDot: true),
-                  const SizedBox(width: AppSpacing.lg),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(faculty.name, style: AppTextStyles.h1(primaryText)),
-                        Text('${faculty.designation} · ${faculty.department}', style: AppTextStyles.bodySm(secondaryText)),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
+            ProfileCard(
+              initials: faculty.initials,
+              name: faculty.name,
+              subtitle: '${faculty.designation} · ${faculty.department}',
             ),
             const SizedBox(height: AppSpacing.lg),
             InfoCard(

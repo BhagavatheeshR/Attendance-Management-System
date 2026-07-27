@@ -1,9 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../../core/responsive.dart';
 import '../../../mock/timetable.dart';
-import '../../../theme/app_colors.dart';
 import '../../../theme/app_spacing.dart';
-import '../../../theme/app_text_styles.dart';
 import '../../../shared/widgets.dart';
 
 class StudentTimetableScreen extends StatefulWidget {
@@ -18,9 +16,6 @@ class _StudentTimetableScreenState extends State<StudentTimetableScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-    final primaryText = isDark ? AppColors.textPrimaryDark : AppColors.textPrimary;
-    final secondaryText = isDark ? AppColors.textSecondaryDark : AppColors.textSecondary;
     final entries = timetableForDay(departmentId: 'dept-cse', year: 'III', day: _day);
 
     return SingleChildScrollView(
@@ -48,29 +43,7 @@ class _StudentTimetableScreenState extends State<StudentTimetableScreen> {
               const EmptyState(icon: Icons.event_busy_rounded, title: 'No classes', message: 'No classes scheduled for this day.')
             else
               for (final entry in entries) ...[
-                InfoCard(
-                  child: Row(
-                    children: [
-                      Container(
-                        width: 4,
-                        height: 44,
-                        decoration: BoxDecoration(color: AppColors.primary, borderRadius: BorderRadius.circular(AppSpacing.radiusFull)),
-                      ),
-                      const SizedBox(width: AppSpacing.lg),
-                      SizedBox(width: 90, child: Text(entry.startTime, style: AppTextStyles.labelLg(primaryText))),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(entry.subject, style: AppTextStyles.h3(primaryText)),
-                            Text(entry.facultyName, style: AppTextStyles.bodySm(secondaryText)),
-                          ],
-                        ),
-                      ),
-                      InfoChip(icon: Icons.meeting_room_outlined, label: entry.room),
-                    ],
-                  ),
-                ),
+                TimetableCard(entry: entry),
                 const SizedBox(height: AppSpacing.sm),
               ],
             const SizedBox(height: AppSpacing.xxxl),

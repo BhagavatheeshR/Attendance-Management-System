@@ -25,23 +25,10 @@ class AdminProfileScreen extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             const SectionHeader(title: 'Profile & Settings'),
-            GlassContainer(
-              padding: const EdgeInsets.all(AppSpacing.lg),
-              child: Row(
-                children: [
-                  const ProfileAvatar(initials: 'AD', size: 56, showStatusDot: true),
-                  const SizedBox(width: AppSpacing.lg),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(app.displayName, style: AppTextStyles.h1(primaryText)),
-                        Text('System Administrator · Attence University', style: AppTextStyles.bodySm(secondaryText)),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
+            ProfileCard(
+              initials: 'AD',
+              name: app.displayName,
+              subtitle: 'System Administrator · Attence University',
             ),
             const SizedBox(height: AppSpacing.lg),
             InfoCard(
